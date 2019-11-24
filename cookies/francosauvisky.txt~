@@ -1,0 +1,35 @@
+
+{'domain': 'www.banggood.com', 'expiry': 1608779759, 'httpOnly': False, 'name': '_scid', 'path': '/', 'secure': True, 'value': '5bf11969-5150-44fc-9eca-e6a556a4feb5'}
+{'domain': '.www.banggood.com', 'expiry': 1732273060, 'httpOnly': False, 'name': 'pw_status_e924faaced168336f02f222c66d47f50a81954df26d071f4d30bfad270283120', 'path': '/', 'secure': True, 'value': 'deny'}
+{'domain': '.www.banggood.com', 'expiry': 1732273060, 'httpOnly': False, 'name': 'pw_deviceid', 'path': '/', 'secure': True, 'value': '75e02e17-c810-41f2-9b38-be5f836a665a'}
+{'domain': '.banggood.com', 'expiry': 1606129059, 'httpOnly': False, 'name': '_ym_uid', 'path': '/', 'secure': False, 'value': '1574593059244682257'}
+{'domain': 'www.banggood.com', 'expiry': 7881793059, 'httpOnly': False, 'name': 'wcs_bt', 'path': '/', 'secure': False, 'value': 's_125414200a53:1574593059'}
+{'domain': '.banggood.com', 'expiry': 1574600258.023857, 'httpOnly': True, 'name': 'ak_bmsc', 'path': '/', 'secure': False, 'value': 'A5DCABB9344835883905B9110FD8CD06BAC09825783C00002162DA5D71F11A13~plaGXu8SizxEOWsjnjwtg02iAoBpgIOfH84WwVXMUNYN+xVrsC2w+87ZbOcIlF8h5Hhp5INcSSsEuhbOh2FRy7I3ky83ZjTMy4zHD6bhxkI5EVCVEN6N976K5fF8PygPZrYPi7AqSMXl9YObVgRCYNddrITmtRNUr2vOWSDMIOag3BZ/pmnunAcfkzV+tSfNC5B1N3fbVOvSZbOXrq2WHRo0ZrG7RJWQ1RlYCHCxkUrGVbKmaxAcPTxYP4wgmlpmNOfhFkzWIg3sKL8o0W5GGDNjDAQzENw2/jFhz4DbBkSbU='}
+{'domain': '.banggood.com', 'expiry': 1577185058.850944, 'httpOnly': False, 'name': '__bgresource', 'path': '/', 'secure': False, 'value': 'direct'}
+{'domain': 'www.banggood.com', 'expiry': 1575197857, 'httpOnly': False, 'name': 'currency', 'path': '/', 'secure': False, 'value': 'BRL'}
+{'domain': '.banggood.com', 'expiry': 1574593118, 'httpOnly': False, 'name': '_gat', 'path': '/', 'secure': False, 'value': '1'}
+{'domain': '.banggood.com', 'expiry': 1574852257, 'httpOnly': False, 'name': '__bgcookie', 'path': '/', 'secure': False, 'value': '0|'}
+{'domain': '.banggood.com', 'expiry': 1605697058, 'httpOnly': False, 'name': '__bguser', 'path': '/', 'secure': False, 'value': '1574593057703|3156845464|3156845464|1574593057703'}
+{'domain': '.banggood.com', 'expiry': 1637665058, 'httpOnly': False, 'name': '_ga', 'path': '/', 'secure': False, 'value': 'GA1.2.167243329.1574593058'}
+{'domain': '.banggood.com', 'expiry': 1574665059, 'httpOnly': False, 'name': '_ym_isad', 'path': '/', 'secure': False, 'value': '2'}
+{'domain': '.banggood.com', 'expiry': 1606129058, 'httpOnly': False, 'name': 'abversion', 'path': '/', 'secure': False, 'value': '2'}
+{'domain': 'www.banggood.com', 'expiry': 1574679458.208857, 'httpOnly': False, 'name': '_bgCK', 'path': '/', 'secure': False, 'value': '04e4adf37ffcbe95bf074adf5cbd1d1b'}
+{'domain': '.banggood.com', 'expiry': 1582369058, 'httpOnly': False, 'name': '_gcl_au', 'path': '/', 'secure': False, 'value': '1.1.1674832223.1574593058'}
+{'domain': '.banggood.com', 'expiry': 1574679458, 'httpOnly': False, 'name': '_gid', 'path': '/', 'secure': False, 'value': 'GA1.2.1494058874.1574593058'}
+{'domain': 'www.banggood.com', 'expiry': 1590145057, 'httpOnly': False, 'name': 'f_webp_lossy', 'path': '/', 'secure': False, 'value': '1'}
+{'domain': '.banggood.com', 'expiry': 1577185057, 'httpOnly': False, 'name': '__bgqueue', 'path': '/', 'secure': False, 'value': '1574593057703|direct|none|-|-|0|0|0|'}
+{'domain': '.banggood.com', 'expiry': 1574594497, 'httpOnly': False, 'name': '__bgvisit', 'path': '/', 'secure': False, 'value': '1574593057703|direct|none|-|-|0|0|0'}
+{'domain': '.banggood.com', 'expiry': 1699354657, 'httpOnly': False, 'name': 'ab_footer_pay', 'path': '/', 'secure': False, 'value': '2'}
+{'domain': '.banggood.com', 'expiry': 1606129059, 'httpOnly': False, 'name': '_ym_d', 'path': '/', 'secure': False, 'value': '1574593059'}
+{'domain': '.banggood.com', 'httpOnly': False, 'name': 'AKFWDDC', 'path': '/', 'secure': False, 'value': 'v3mkEyHgawo7/tZOtC4ky9PdPFdrOe0xkdei7uuV/TY='}
+{'domain': '.banggood.com', 'expiry': 1606129058.197132, 'httpOnly': False, 'name': '_abck', 'path': '/', 'secure': True, 'value': '5FEAF082D4C78AB8721D0E349AE741D7~0~YAAQJZjAuoFn1JZuAQAAWFUPnQJ+zTS1VW1E09DpBI+8E0YGIiJO5GTcB6+XWv9Yd0z5Uc2RDvirmzBFCgXec54cjuBheG4pxnfciWQPxtaXeqxNKychQxneG13l9eHNu5HyDo/fPM0cPV3NSuAzqy4kWawiX9+Ubg2m5XreFKxdn45PpXh70EdayahM1eZhf8Kp+KVy+mn8MlOh83lMHHvFRsufEMX3KSPBkHOL8hPvKn4LVd9klQYH1xo68CMVlgBtlGKFD/959kB9S/bWSAGwglo4GKoDpgnHwL87+vruV99RuuQeNXKjdYfll6+WHwC3s/Osu1XR~-1~-1~-1'}
+{'domain': '.banggood.com', 'expiry': 1582369063, 'httpOnly': False, 'name': '_fbp', 'path': '/', 'secure': False, 'value': 'fb.1.1574593058440.652972176'}
+{'domain': 'www.banggood.com', 'httpOnly': False, 'name': 'COOKIE_ID', 'path': '/', 'secure': False, 'value': '51'}
+{'domain': 'www.banggood.com', 'expiry': 1577185057, 'httpOnly': False, 'name': '_bg_w_c', 'path': '/', 'secure': False, 'value': 'f397da41b17e938b8bf5b9e055fbcaf7'}
+{'domain': '.banggood.com', 'expiry': 1574596658.850924, 'httpOnly': False, 'name': 'test_version', 'path': '/', 'secure': False, 'value': 'new_page'}
+{'domain': '.banggood.com', 'expiry': 1575197858.208825, 'httpOnly': True, 'name': 'banggood_SID', 'path': '/', 'secure': False, 'value': '2a57303e3d2e3e1c8cc60b8f3407044e'}
+{'domain': '.banggood.com', 'expiry': 1574600257.208894, 'httpOnly': True, 'name': 'bm_sv', 'path': '/', 'secure': False, 'value': '0D02BC3FD960DA71B306DAC2AC1220C5~t8G0RXFKao8nnjo1qIUVyytUvxRBRruUNf9umFpr9fHNigjGk7jeK07paBKyekqStEYFVBuslIxZixHkXfiv3W1NJx6Ie4XmJBUQWDvNkRbMnzGOQ33hT1r2lXzNB3WCs6L9Xu3woJ+VYQYX1MG907qlZc2C/JW4doWTm3oTdJM='}
+{'domain': 'www.banggood.com', 'expiry': 1575197858.208843, 'httpOnly': False, 'name': '_bgLang', 'path': '/', 'secure': False, 'value': 'en-GB'}
+{'domain': '.banggood.com', 'expiry': 1574607456.287134, 'httpOnly': True, 'name': 'bm_sz', 'path': '/', 'secure': False, 'value': 'B705E2E0B63A76966AE24A99EE1A6B01~YAAQJZjAun5n1JZuAQAA5VEPnQVVJu+ANe/rQcOq37BED9MgPdy/Kd0R3jAuIDN31CqiqLIvlX8yeBATE053CSN3XgUC37Hvb4EJe5WmUwhruoiTHJ2BncYCnRBScpCTVStiEiqO/mTsMnnAczVWSnfysfviWzdr0+Ydg+jhEkKy2K+249z1rgpErAmZikzy1lI='}
+{'domain': '.banggood.com', 'expiry': 1575457058.208883, 'httpOnly': False, 'name': 'banggoodSffix', 'path': '/', 'secure': False, 'value': 'com'}
+{'domain': 'www.banggood.com', 'expiry': 1579777058.20887, 'httpOnly': False, 'name': 'is_new_access_customer', 'path': '/', 'secure': False, 'value': 'Y'}
