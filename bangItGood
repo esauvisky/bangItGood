@@ -11,6 +11,8 @@ import argparse
 import json
 import re
 from tkinter import messagebox
+from glob import glob
+import time
 
 import logzero
 from logzero import logger
@@ -21,7 +23,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 POINTS_MALL_URL = "https://www.banggood.com/pointsmall.html"
-BLACK_FRIDAY_URL = "https://www.banggood.com/banggood-black-friday-carve-up-bonuses-2019.html"
+LOTTERY_URL = "https://www.banggood.com/index.php?bid=24156&com=lottery&t=lotteryDraw&lottery_id=11"
 LOGIN_PAGE_URL = "https://www.banggood.com/login.html"
 
 
@@ -42,11 +44,36 @@ def save_login_cookies(username=False, password=False):
         browser.find_element_by_id('login-submit').click()
 
     ## Writes to file:
-    filename = 'cookies/' + str(username) + '.txt'
+    filename = 'cookies/' + str(username) + '.json'
     with open(filename, 'w+') as file:
         file.write(json.dumps(browser.get_cookies()))
 
     return filename
+
+
+def open_url(url, driver):
+    """
+    Opens an URL with a timeout
+
+    Args:
+        url ([type]): [description]
+        driver ([type]): [description]
+    """
+    # (sometimes it hangs up)
+    driver.implicitly_wait(15)
+    driver.set_page_load_timeout(30)
+    ## Alternative: https://intellipaat.com/community/10338/how-do-i-set-the-selenium-webdriver-get-timeout
+    # WebDriverWait(driver,)
+
+    try:
+        logger.info('Opening %s', url)
+        driver.get(url)
+    except common.exceptions.TimeoutException:
+        logger.warning('Got stuck at %s. Continuing...', url)
+        driver.execute_script("window.stop();")
+    except Exception as e:
+        logger.critical('Some weird error happened! Will continue but meh...', exc_info=True)
+        driver.execute_script("window.stop();")
 
 
 def main(args):
@@ -58,16 +85,38 @@ def main(args):
     if args.username:
         filename = save_login_cookies(username=args.username)
         logger.info('Saved cookies at %s', filename)
-        return (0)
+        return True
+
+    try:
+        if len(args.cookies) == 1:
+            open(args.cookies[0], 'r')
+    except NotADirectoryError:
+        pass
+    except (FileNotFoundError, IsADirectoryError):
+        args.cookies = glob(
+            args.cookies[0] if args.cookies[0].endswith('*') else args.cookies[0] + '*')
+
+        try:
+            open(args.cookies[0], 'r')
+        except Exception as e:
+            raise (e)
 
     for cookiefile in args.cookies:
-        # Headless mode if --quiet
+        # Creates Driver
         options = webdriver.ChromeOptions()
+        options.add_extension('./ublock.crx')
+        options.add_argument('user-data-dir=./chrome-profile/')
+
         if args.quiet:
             options.add_argument('headless')
 
         driver = webdriver.Chrome(options=options)
 
+        # if not args.quiet:
+            # driver.set_window_rect(1920 + 1920 / 2, 0, 1920 / 2, 1080 / (2/3))
+            # driver.set_window_rect(1920/2,0,1920/2,1080/2)
+
+        # Cookies
         with open(cookiefile, 'r') as file:
             cookies = json.load(file)
 
@@ -78,20 +127,8 @@ def main(args):
                             # if key in ('name', 'value', 'path', 'secure')}
                             for c in cookies]
 
-        # Waits at most 15 seconds per page load
-        # (sometimes it hangs up)
-        driver.implicitly_wait(10)
-        driver.set_page_load_timeout(30)
-        ## Alternative: https://intellipaat.com/community/10338/how-do-i-set-the-selenium-webdriver-get-timeout
-        # WebDriverWait(driver,)
-
-        try:
-            # Must open any page once before adding cookies
-            logger.info('Opening %s', LOGIN_PAGE_URL)
-            driver.get(LOGIN_PAGE_URL)
-        except:
-            logger.error('Got stuck at %s. Continuing...', LOGIN_PAGE_URL)
-            driver.execute_script("window.stop();")
+        # Must open any URL before setting cookies
+        open_url(LOGIN_PAGE_URL, driver)
 
         # Adds cookies
         try:
@@ -99,40 +136,84 @@ def main(args):
         except:
             username = str(cookiefile)
 
-        logger.warning('Adding cookies for user %s', username)
+
+        logger.info('Deleting all previous cookies')
+        driver.delete_all_cookies()
+        logger.info('Adding cookies for user %s', username)
         for cookie in filtered_cookies:
-            logger.debug('Adding cookie: %s', cookie['name'])
             driver.add_cookie(cookie)
-        # pprint(driver.get_cookies())
+
+        # Daily Points
+        open_url(POINTS_MALL_URL, driver)
+
+        logger.info('Clicking CHECK-IN button.')
+        checkinButtonElements = driver.find_elements_by_css_selector('.checkin-btn')
+        if not len(checkinButtonElements):
+            logger.error("Couldn't find CHECK-IN button. Moving on...")
+        elif 'gray' in checkinButtonElements[0].get_attribute('class'):
+            logger.warning("Already clicked for today!")
+        else:
+            try:
+                checkinButtonElements[0].click()
+            except Exception as e:
+                logger.critical('Something wrong happened', exc_info=True)
+            else:
+                logger.info('Clicked button! Moving on...')
 
         # Opens page and clicks button
-        try:
-            logger.info('Opening %s', POINTS_MALL_URL)
-            driver.get(POINTS_MALL_URL)
-        except:
-            logger.error('Got stuck at %s. Continuing...', POINTS_MALL_URL)
-            driver.execute_script("window.stop();")
+        count = 0
+        while True:
+            open_url(LOTTERY_URL, driver)
 
-        try:
-            logger.info('Clicking CHECK-IN button.')
-            driver.find_element_by_partial_link_text('CHECK-IN').click()
-        except common.exceptions.NoSuchElementException:
-            logger.error("Couldn't find CHECK-IN button. Moving on...")
-        else:
-            logger.warning('Clicked button! Moving on...')
-        finally:
-            driver.quit()
+            playButtonElements = driver.find_elements_by_css_selector(
+                '.lucky-draw-main .main-wrap .lucky-block .lucky-wrap .lottery-block .lottery .lottery-nine-wrap li.play-nine h2'
+            )
+            if len(playButtonElements):
+                logger.info('Clicking PLAY button.')
+                playButtonElements[0].click()
+            time.sleep(2)
 
-    # browser.get(BLACK_FRIDAY_URL)
-    # for i in fs.
-    #  driver.add_cookie({'name': 'foo', 'value': 'bar'})
-    # bgTasks = browser.find_elements_by_css_selector('.J-task-btn')
-    # for bgTask in bgTasks:
-    #     bgTask.click()
-    #     if POINTS_MALL_URL in browser.current_url:
-    #         browser.find_element('javascript:;')
-    #     else:
-    #         breakpoint()
+            logger.info('Clicked button! Checking results...')
+
+            # First check if we're done
+            modalLimitedElements = driver.find_elements_by_css_selector(
+                '.modal-bginfo .cont, .modal-bgmsg .cont')
+            if len(modalLimitedElements) > 0:
+                logger.warning('No more attempts! Moving on...')
+                break
+
+            # Then check the modals
+            # modalsPrizeElements = driver.find_elements_by_xpath("//div[@class='.popue-mask and style='display: block;']")
+            modalPrizeElements = None
+            possibleModalsElements = driver.find_elements_by_css_selector('.popue-mask')
+            for modal in possibleModalsElements:
+                style = modal.get_attribute('style')
+                if 'display: block' in style:
+                    modalPrizeElements = modal.find_elements_by_css_selector('.popue .disc')
+
+            if len(modalPrizeElements) > 0:
+                rewardText = modalPrizeElements[0].text
+                if 'Insufficient Points' in rewardText:
+                    logger.warning('Not enough points! Moving on...')
+                    break
+
+                if 'notice your email' in rewardText:
+                    logger.critical('Holy shit!\n%s')
+                    with open('/home/esauvisky/holyshit.txt', 'x') as file:
+                        file.write(
+                            'You fucking won the prize with the account ' + username
+                            + '\nThe prize is: ' + rewardText)
+
+                logger.info('%s. Can continue!', rewardText)
+                continue
+
+            logger.critical('No modal was found :( Trying again')
+            count = count + 1
+            if count >= 5:
+                logger.critical('Too many attempts. Bye Bye!')
+                break
+
+        driver.quit()
 
 
 if __name__ == "__main__":
@@ -156,6 +237,6 @@ if __name__ == "__main__":
         "--version", action="version",
         version="%(prog)s (version {version})".format(version=__version__))
 
-    logzero.loglevel(logzero.logging.INFO)
+    logzero.loglevel(logzero.logging.DEBUG)
     args = parser.parse_args()
     main(args)
