@@ -1,0 +1,8 @@
+[58553:58553:1203/021130.581330:ERROR:sandbox_linux.cc(369)] InitializeSandbox() called with multiple threads in process gpu-process.
+[58553:58553:1203/021130.774138:ERROR:buffer_manager.cc(488)] [.DisplayCompositor]GL ERROR :GL_INVALID_OPERATION : glBufferData: <- error from previous GL command
+[58557:58591:1203/021131.603892:WARNING:spdy_session.cc(3324)] Received HEADERS for invalid stream 3
+[58630:1:1203/021131.733188:ERROR:child_process_sandbox_support_impl_linux.cc(81)] FontService unique font name matching request did not receive a response.
+[58553:58553:1203/021134.197351:WARNING:x11_util.cc(1399)] X error received: serial 1841, error_code 170 (GLXBadWindow), request_code 152, minor_code 32 (X_GLXDestroyWindow)
+[58553:58553:1203/021134.197821:WARNING:x11_util.cc(1399)] X error received: serial 1847, error_code 3 (BadWindow (invalid Window parameter)), request_code 4, minor_code 0 (X_DestroyWindow)
+[58520:58520:1203/021134.254167:WARNING:pref_notifier_impl.cc(40)] Pref observer for browser.relaunch_notification_period found at shutdown.
+[58520:58520:1203/021134.254279:WARNING:pref_notifier_impl.cc(40)] Pref observer for media_router.cast_allow_all_ips found at shutdown.
