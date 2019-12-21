@@ -77,8 +77,8 @@ def open_url(url, driver):
         driver ([type]): [description]
     """
     # (sometimes it hangs up)
-    driver.implicitly_wait(15)
-    driver.set_page_load_timeout(30)
+    driver.implicitly_wait(30)
+    driver.set_page_load_timeout(45)
     ## Alternative: https://intellipaat.com/community/10338/how-do-i-set-the-selenium-webdriver-get-timeout
     # WebDriverWait(driver,)
 
@@ -172,7 +172,10 @@ def main(args):
             logger.warning("Already clicked for today!")
         else:
             try:
+                logger.info('Clicking CHECK-IN button. (%s elements in total).', len(checkinButtonElements))
                 checkinButtonElements[0].click()
+            except common.exceptions.ElementNotInteractableException:
+                logger.error('Button is non interactable, probably means already clicked! Moving on...', exc_info=True)
             except Exception as e:
                 logger.critical('Something wrong happened', exc_info=True)
             else:
@@ -234,7 +237,7 @@ def main(args):
                 if 'display: block' in style:
                     modalPrizeElements = modal.find_elements_by_css_selector('.popue .disc')
 
-            if len(modalPrizeElements) > 0:
+            if modalPrizeElements and len(modalPrizeElements) > 0:
                 rewardText = modalPrizeElements[0].text
                 if 'Insufficient Points' in rewardText:
                     logger.warning('Not enough points! Moving on...')
