@@ -197,7 +197,6 @@ def main(args):
             if len(playButtonElements):
                 logger.info('Clicking PLAY button (%s elements in total).', len(playButtonElements))
                 playButtonElements[0].click()
-                time.sleep(2)
                 logger.info('Clicked button! Checking results...')
             else:
                 logger.critical('Did not found any play button! :( Trying again...')
@@ -207,40 +206,38 @@ def main(args):
                     break
                 continue
 
-            # Check if we're done (i.e.: three daily attempts were used)
-            modalLimitedElements = driver.find_elements_by_css_selector('.modal-bginfo .cont, .modal-bgmsg .cont')
-            if len(modalLimitedElements) > 0:
-                modalLimitedText = modalLimitedElements[0].text
-                if 'activity is over' in modalLimitedText and LOTTERY_URL_UNKNOWN:
-                    logger.warning("This doesn't look like the current lottery, increasing ID by one and trying again.")
-                    LOTTERY_URL = increase_url_int_param('lottery_id', LOTTERY_URL)
-                    continue
-                elif 'no more attempts':
-                    logger.warning('No more attempts! Moving on...')
-                    break
-
-            # Check the modals
-            # modalsPrizeElements = driver.find_elements_by_xpath("//div[@class='.popue-mask and style='display: block;']")
-            modalPrizeElements = None
-            possibleModalsElements = driver.find_elements_by_css_selector('.popue-mask')
-            for modal in possibleModalsElements:
-                style = modal.get_attribute('style')
-                if 'display: block' in style:
-                    modalPrizeElements = modal.find_elements_by_css_selector('.popue .disc')
-
-            if modalPrizeElements and len(modalPrizeElements) > 0:
+            modalPrizeElements = driver.find_elements_by_xpath('//div[contains(@class, "popue-mask") and contains(@style, "display: block;")]')
+            if len(modalPrizeElements) > 0:
+                modalClass = modalPrizeElements[0].get_attribute('class')
                 rewardText = modalPrizeElements[0].text
+                for goodClass in ['coupon', 'prize']:
+                    if goodClass in modalClass:
+                        with open(str(Path.home()) + '/banggood.txt', 'x') as file:
+                            file.write(username + ' got: ' + rewardText)
+
                 if 'Insufficient Points' in rewardText:
                     logger.warning('Not enough points! Moving on...')
                     break
 
                 if 'notice your email' in rewardText:
                     logger.critical('Holy shit!\n%s')
-                    with open(Path.home() + '/holyshit.txt', 'x') as file:
+                    with open(str(Path.home()) + '/holyshit.txt', 'x') as file:
                         file.write('You fucking won the prize with the account ' + username + '\nThe prize is: ' + rewardText)
 
                 logger.info('%s. Can continue!', rewardText)
                 continue
+
+            # Check if we're done (i.e.: three daily attempts were used)
+            modalLimitedElements = driver.find_elements_by_css_selector('.cont')
+            if len(modalLimitedElements) > 0:
+                modalLimitedText = modalLimitedElements[0].text
+                if 'activity is over' in modalLimitedText and LOTTERY_URL_UNKNOWN:
+                    logger.warning("This doesn't look like the current lottery, increasing ID by one and trying again.")
+                    LOTTERY_URL = increase_url_int_param('lottery_id', LOTTERY_URL)
+                    continue
+                elif any(endText in modalLimitedText for endText in ['no more attempts', 'times of usage', 'is limited']):
+                    logger.warning('No more attempts! Moving on...')
+                    break
 
             logger.critical('No modal was found :( Trying again')
             count = count + 1
