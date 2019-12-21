@@ -23,8 +23,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 POINTS_MALL_URL = "https://www.banggood.com/pointsmall.html"
-LOTTERY_URL = "https://www.banggood.com/index.php?bid=24156&com=lottery&t=lotteryDraw&lottery_id=11"
 LOGIN_PAGE_URL = "https://www.banggood.com/login.html"
+LOTTERY_URL = "https://www.banggood.com/index.php?com=lottery&t=lotteryDraw&lottery_id=12"
 
 
 def save_login_cookies(username=False, password=False):
@@ -49,6 +49,23 @@ def save_login_cookies(username=False, password=False):
         file.write(json.dumps(browser.get_cookies()))
 
     return filename
+
+
+def increase_url_int_param(param, url):
+    """
+    Increases any GET integer parameter by one
+
+    Args:
+        param (string): the name of the parameter to search for (e.g.: 'lottery_id')
+        url   (string): the URL in where to search for (e.g.: "https://www.banggood.com/index.php?com=lottery&t=lotteryDraw&lottery_id=12")
+
+    Returns:
+        [string]: the URL with an increased id for the specified parameter. e.g.:
+            "https://www.banggood.com/index.php?com=lottery&t=lotteryDraw&lottery_id=13"
+    """
+    oldId = re.search(rf"{param}=(\d+)", url)
+    newId = str(oldId[0]).replace(str(oldId[1]), str(int(oldId[1])+1))
+    return url.replace(oldId[0], newId)
 
 
 def open_url(url, driver):
@@ -78,6 +95,7 @@ def open_url(url, driver):
 
 def main(args):
     """ Main entry point of the app """
+    global LOTTERY_URL
     logger.setLevel(args.verbose)
 
     logger.debug(args)
@@ -160,29 +178,54 @@ def main(args):
             else:
                 logger.info('Clicked button! Moving on...')
 
+
+        # Gets lottery URL from Daily Points webpage:
+        pointMallSourceCode = driver.page_source
+        lotteryUrlElements = driver.find_elements_by_xpath('//a[contains(@href, "lottery_id")]')
+        if len(lotteryUrlElements):
+            # If found, use it from now on
+            LOTTERY_URL = lotteryUrlElements[0].get_attribute("href")
+            logger.info('Found lottery URL in the daily webpage! Hurray! The URL ends with: %s', LOTTERY_URL[-25:])
+        else:
+            # Otherwise, use the hardcoded URL and count on 'activity is over' to increase ID until found
+            logger.warning("Shit, didn't find any lottery URL, will use the hardcoded one.")
+            LOTTERY_URL_UNKNOWN = True
+
+
         # Opens page and clicks button
         count = 0
         while True:
             open_url(LOTTERY_URL, driver)
 
-            playButtonElements = driver.find_elements_by_css_selector(
-                '.lucky-draw-main .main-wrap .lucky-block .lucky-wrap .lottery-block .lottery .lottery-nine-wrap li.play-nine h2'
-            )
+            playButtonElements = driver.find_elements_by_css_selector('.lottery .play-nine, .lottery .play-turn')
+
             if len(playButtonElements):
-                logger.info('Clicking PLAY button.')
+                logger.info('Clicking PLAY button (%s elements in total).', len(playButtonElements))
                 playButtonElements[0].click()
             time.sleep(2)
-
             logger.info('Clicked button! Checking results...')
+            else:
+                logger.critical('Did not found any play button! :( Trying again...')
+                count = count + 1
+                if count >= 5:
+                    logger.critical('Too many attempts. Bye Bye!')
+                    break
+                continue
 
-            # First check if we're done
+            # Check if we're done (i.e.: three daily attempts were used)
             modalLimitedElements = driver.find_elements_by_css_selector(
                 '.modal-bginfo .cont, .modal-bgmsg .cont')
             if len(modalLimitedElements) > 0:
+                modalLimitedText = modalLimitedElements[0].text
+                if 'activity is over' in modalLimitedText and LOTTERY_URL_UNKNOWN:
+                    logger.warning("This doesn't look like the current lottery, increasing ID by one and trying again.")
+                    LOTTERY_URL = increase_url_int_param('lottery_id', LOTTERY_URL)
+                    continue
+                elif 'no more attempts':
                 logger.warning('No more attempts! Moving on...')
                 break
 
-            # Then check the modals
+            # Check the modals
             # modalsPrizeElements = driver.find_elements_by_xpath("//div[@class='.popue-mask and style='display: block;']")
             modalPrizeElements = None
             possibleModalsElements = driver.find_elements_by_css_selector('.popue-mask')
