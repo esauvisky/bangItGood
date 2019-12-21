@@ -122,17 +122,15 @@ def main(args):
     for cookiefile in args.cookies:
         # Creates Driver
         options = webdriver.ChromeOptions()
-        options.add_extension('./ublock.crx')
         options.add_argument('user-data-dir=./chrome-profile/')
 
         if args.quiet:
+            options.add_argument('load-extension==./ublock.crx') # doesnt work most likely
             options.add_argument('headless')
+        else:
+            options.add_extension('./ublock.crx')
 
         driver = webdriver.Chrome(options=options)
-
-        # if not args.quiet:
-            # driver.set_window_rect(1920 + 1920 / 2, 0, 1920 / 2, 1080 / (2/3))
-            # driver.set_window_rect(1920/2,0,1920/2,1080/2)
 
         # Cookies
         with open(cookiefile, 'r') as file:
@@ -164,7 +162,6 @@ def main(args):
         # Daily Points
         open_url(POINTS_MALL_URL, driver)
 
-        logger.info('Clicking CHECK-IN button.')
         checkinButtonElements = driver.find_elements_by_css_selector('.checkin-btn')
         if not len(checkinButtonElements):
             logger.error("Couldn't find CHECK-IN button. Moving on...")
@@ -205,8 +202,8 @@ def main(args):
             if len(playButtonElements):
                 logger.info('Clicking PLAY button (%s elements in total).', len(playButtonElements))
                 playButtonElements[0].click()
-            time.sleep(2)
-            logger.info('Clicked button! Checking results...')
+                time.sleep(2)
+                logger.info('Clicked button! Checking results...')
             else:
                 logger.critical('Did not found any play button! :( Trying again...')
                 count = count + 1
@@ -225,8 +222,8 @@ def main(args):
                     LOTTERY_URL = increase_url_int_param('lottery_id', LOTTERY_URL)
                     continue
                 elif 'no more attempts':
-                logger.warning('No more attempts! Moving on...')
-                break
+                    logger.warning('No more attempts! Moving on...')
+                    break
 
             # Check the modals
             # modalsPrizeElements = driver.find_elements_by_xpath("//div[@class='.popue-mask and style='display: block;']")
