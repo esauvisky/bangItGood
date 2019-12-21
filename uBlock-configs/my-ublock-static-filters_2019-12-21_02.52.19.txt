@@ -1,0 +1,10 @@
+! 12/1/2019 banggood.com
+||www.google-analytics.com^$important
+||google-analytics.com^$important
+||googletagmanager.com^$script,important
+||dc.banggood.com^$script,1p,important
+
+@@||*.bangood.com?$script,domain=www.banggood.com
+@@||img.staticbg.com^$domain=banggood.com
+||*catetreeNew.html$xhr,important
+||gstatic.com^

@@ -1,0 +1,9 @@
+no-large-media: behind-the-scene true
+* https://translate.google.com * block
+* https://translate.googleapis.com * block
+* https://translate.googleapis.com script block
+banggood.com * 1p-script allow
+banggood.com * 3p-frame block
+banggood.com * 3p-script block
+banggood.com imgaz.staticbg.com * allow
+www.banggood.com bangood.com * allow
