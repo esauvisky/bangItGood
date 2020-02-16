@@ -1,4 +1,3 @@
 cookies/*.json
 .vscode
 chrome-profile
-!chrome-profile/Default/Local Extension Settings
