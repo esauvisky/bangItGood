@@ -14,6 +14,7 @@ from tkinter import messagebox
 from glob import glob
 from pathlib import Path
 import time
+import random
 
 import logzero
 from logzero import logger
@@ -22,10 +23,15 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.action_chains import ActionChains
 
 POINTS_MALL_URL = "https://www.banggood.com/pointsmall.html"
 LOGIN_PAGE_URL = "https://www.banggood.com/login.html"
-LOTTERY_URL = "https://www.banggood.com/index.php?com=lottery&t=lotteryDraw&lottery_id=12"
+LOTTERY_URL = "https://www.banggood.com/index.php?com=lottery&t=lotteryDraw&lottery_id=17"
+VIP_CENTER_URL = "https://www.banggood.com/index.php?com=account&t=vipCenter_v2"
+DAILY_BONUS_URL = "https://www.banggood.com/index.php?com=account&t=dailybonus"
+
+LOTTERY_URL_UNKNOWN = True
 
 
 def save_login_cookies(username=False, password=False):
@@ -44,7 +50,7 @@ def save_login_cookies(username=False, password=False):
 
     # Writes to file:
     filename = 'cookies/' + str(username) + '.json'
-    with open(filename, 'w+') as file:
+    with open(filename, 'w') as file:
         file.write(json.dumps(browser.get_cookies()))
 
     return filename
@@ -96,6 +102,7 @@ def open_url(url, driver):
 def main(args):
     """ Main entry point of the app """
     global LOTTERY_URL
+    global LOTTERY_URL_UNKNOWN
     logger.setLevel(args.verbose)
 
     logger.debug(args)
@@ -130,6 +137,7 @@ def main(args):
             options.add_extension('./uBlock/uBlock.crx')
 
         driver = webdriver.Chrome(options=options)
+        action = ActionChains(driver)
 
         # Cookies
         with open(cookiefile, 'r') as file:
@@ -152,6 +160,7 @@ def main(args):
 
         logger.info('Deleting all previous cookies')
         driver.delete_all_cookies()
+        open_url(LOGIN_PAGE_URL, driver)
         logger.info('Adding cookies for user %s', username)
         for cookie in filtered_cookies:
             driver.add_cookie(cookie)
@@ -176,26 +185,32 @@ def main(args):
                 logger.info('Clicked button! Moving on...')
 
         # Gets lottery URL from Daily Points webpage:
+        repeat_times = 3 # if 'esauvisky' in username else 3
         pointMallSourceCode = driver.page_source
         lotteryUrlElements = driver.find_elements_by_xpath('//a[contains(@href, "lottery_id")]')
         if len(lotteryUrlElements):
             # If found, use it from now on
             LOTTERY_URL = lotteryUrlElements[0].get_attribute("href")
             logger.info('Found lottery URL in the daily webpage! Hurray! The URL ends with: %s', LOTTERY_URL[-25:])
+            LOTTERY_URL_UNKNOWN = False
         else:
             # Otherwise, use the hardcoded URL and count on 'activity is over' to increase ID until found
-            logger.warning("Shit, didn't find any lottery URL, will use the hardcoded one.")
-            LOTTERY_URL_UNKNOWN = True
+            # logger.warning("Shit, didn't find any lottery URL, will use the hardcoded one.")
+            logger.warning("Shit, didn't find any lottery URL, will not play.")
+            repeat_times = 0
 
-        # Opens page and clicks button
+        # Opens lottery url and clicks button
         count = 0
-        while True:
+        for attempt in range(0, repeat_times):  # tries only three times to avoid the spending all points bug
             open_url(LOTTERY_URL, driver)
+
 
             playButtonElements = driver.find_elements_by_css_selector('.lottery .play-nine, .lottery .play-turn')
 
             if len(playButtonElements):
-                logger.info('Clicking PLAY button (%s elements in total).', len(playButtonElements))
+                logger.info('Attempt n° %s: Clicking PLAY button (%s elements in total).', attempt, len(playButtonElements))
+                action.move_to_element_with_offset(playButtonElements[0], random.randint(5, 20), random.randint(5, 20)).perform()
+                time.sleep(random.randint(0, 5))
                 playButtonElements[0].click()
                 logger.info('Clicked button! Checking results...')
             else:
@@ -212,8 +227,8 @@ def main(args):
                 rewardText = modalPrizeElements[0].text
                 for goodClass in ['coupon', 'prize']:
                     if goodClass in modalClass:
-                        with open(str(Path.home()) + '/banggood.txt', 'x') as file:
-                            file.write(username + ' got: ' + rewardText)
+                        with open(str(Path.home()) + '/banggood.txt', 'a') as file:
+                            file.write(username + ' got: ' + rewardText + '\n')
 
                 if 'Insufficient Points' in rewardText:
                     logger.warning('Not enough points! Moving on...')
@@ -221,7 +236,7 @@ def main(args):
 
                 if 'notice your email' in rewardText:
                     logger.critical('Holy shit!\n%s')
-                    with open(str(Path.home()) + '/holyshit.txt', 'x') as file:
+                    with open(str(Path.home()) + '/holyshit.txt', 'a') as file:
                         file.write('You fucking won the prize with the account ' + username + '\nThe prize is: ' + rewardText)
 
                 logger.info('%s. Can continue!', rewardText)
@@ -244,6 +259,59 @@ def main(args):
             if count >= 5:
                 logger.critical('Too many attempts. Bye Bye!')
                 break
+
+        # VIP CENTER
+        open_url(VIP_CENTER_URL, driver)
+        couponHoverBonus = driver.find_elements_by_xpath('//li[contains(@class, "daily_bonus") and contains(@class, "coupon_hover")]')
+        if len(couponHoverBonus) > 0:
+            logger.info("Found daily bonus icon, hovering icon...")
+            try:
+                action.move_to_element(couponHoverBonus[0]).click().perform()
+            except Exception:
+                logger.error("Couldn't perform the daily bonus on this page, probably means it's not available.")
+            else:
+                buttonsDailyBonus = driver.find_elements_by_xpath('//li[contains(@class, "daily_bonus")]//span[@class="get_coupon"]')
+                if len(buttonsDailyBonus) > 0:
+                    logger.info('Clicking "Get It" button...')
+                    buttonsDailyBonus[0].click()
+
+                    congratsButtons = driver.find_elements_by_xpath('//div[@class="pop2")]//a[@class="check_bgpay_btn"]')
+                    redeemButtons = driver.find_elements_by_xpath('//div[@class="pop1")]//a[@class="redeem_btn"]')
+                    if len(redeemButtons):
+                        logger.info("Redeeming coins...")
+                        redeemButtons[0].click()
+                    elif len(congratsButtons):
+                        logger.info("Uhhh... Congrats button!")
+                        congratsButtons[0].click()
+
+        # DAILY BONUS
+        for _ in range(0, 2):
+            open_url(DAILY_BONUS_URL, driver)
+            eggHoverBonus = driver.find_elements_by_xpath('//div[contains(@class, "egg-cnt")]')
+            if len(eggHoverBonus):
+                move_to = action.move_to_element(eggHoverBonus[0])
+                eggHoverBonus[0].click()
+                eggDailyBonusesModals = driver.find_elements_by_xpath('//div[contains(@class, "foot")]//li[contains(@class, "confirm")]')
+                if len(eggDailyBonusesModals) > 0:
+                    for eggDailyBonusConfirm in eggDailyBonusesModals:
+                        if eggDailyBonusConfirm.location['x'] > 0:
+                            try:
+                                logger.info('Clicking "Confirm" button...')
+                                eggDailyBonusConfirm.click()
+                                logger.info('Waiting some seconds...')
+                                time.sleep(random.randint(5, 10))
+                                logger.info('TODO: checking result modal')
+                            except:
+                                logger.warning('Wrong button! Moving on...')
+                else:
+                    logger.error("Couldn't find the modal! :(")
+                    break
+            else:
+                logger.error("Couldn't find the egg! :( Giving up...")
+                break
+
+        logger.info('Deleting all previous cookies and cleaning up...')
+        driver.delete_all_cookies()
 
         driver.quit()
 
