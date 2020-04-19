@@ -1,3 +1,4 @@
 cookies/*.json
 .vscode
 chrome-profile
+credentials.json
