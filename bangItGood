@@ -33,6 +33,8 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
+
 
 POINTS_MALL_URL = "https://www.banggood.com/pointsmall.html"
 LOGIN_PAGE_URL = "https://www.banggood.com/login.html"
@@ -98,7 +100,7 @@ def increase_url_int_param(param, url):
     return url.replace(oldId[0], newId)
 
 
-def open_url(url, driver):
+def open_url(url, driver, action):
     """
     Opens an URL with a timeout
 
@@ -121,6 +123,7 @@ def open_url(url, driver):
     except Exception as e:
         logger.critical('Some weird error happened! Will continue but meh...', exc_info=True)
         driver.execute_script("window.stop();")
+    action.pause(1).perform()
 
 
 def main(args):
@@ -144,18 +147,23 @@ def main(args):
 
         driver = webdriver.Chrome(options=options)
         action = ActionChains(driver)
-        if not args.quiet: driver.set_window_rect(380,0,1560,750)
-
+        if not args.quiet:
+            driver.set_window_rect(380,0,1160,1040)
+            driver.get('chrome://settings/')
+            driver.execute_script('chrome.settingsPrivate.setDefaultZoom(0.8);')
 
         # Must open any URL before setting cookies
-        open_url(LOGIN_PAGE_URL, driver)
+        open_url(LOGIN_PAGE_URL, driver, action)
+        driver.delete_all_cookies()
 
+        open_url(LOGIN_PAGE_URL, driver, action)
         driver.find_element_by_id('login-email').send_keys(username)
         driver.find_element_by_id('login-pwd').send_keys(password)
-        driver.find_element_by_id('login-submit').click()
+        driver.find_element_by_id('login-submit').send_keys(Keys.ENTER)
+        action.pause(5).perform()
 
         # Daily Points
-        open_url(POINTS_MALL_URL, driver)
+        open_url(POINTS_MALL_URL, driver, action)
 
         checkinButtonElements = driver.find_elements_by_css_selector('.checkin-btn')
         if not len(checkinButtonElements):
@@ -191,7 +199,7 @@ def main(args):
         # # Opens lottery url and clicks button
         # count = 0
         # for attempt in range(0, repeat_times):  # tries only three times to avoid the spending all points bug
-        #     open_url(LOTTERY_URL, driver)
+        #     open_url(LOTTERY_URL, driver, action)
 
         #     playButtonElements = driver.find_elements_by_css_selector('.lottery .play-nine, .lottery .play-turn')
 
@@ -249,7 +257,7 @@ def main(args):
         #         break
 
         # # VIP CENTER
-        # open_url(VIP_CENTER_URL, driver)
+        # open_url(VIP_CENTER_URL, driver, action)
         # couponHoverBonus = driver.find_elements_by_xpath('//li[contains(@class, "daily_bonus") and contains(@class, "coupon_hover")]')
         # if len(couponHoverBonus) > 0:
         #     logger.info("Found daily bonus icon, hovering icon...")
@@ -272,9 +280,9 @@ def main(args):
         #                 logger.info("Uhhh... Congrats button!")
         #                 congratsButtons[0].click()
 
-        # DAILY BONUS
+        # # DAILY BONUS
         # for _ in range(0, 2):
-        #     open_url(DAILY_BONUS_URL, driver)
+        #     open_url(DAILY_BONUS_URL, driver, action)
         #     eggHoverBonus = driver.find_elements_by_xpath('//div[contains(@class, "egg-cnt")]')
         #     if len(eggHoverBonus):
         #         move_to = action.move_to_element(eggHoverBonus[0])
