@@ -2,8 +2,6 @@
 """
 Module Docstring
 """
-
-
 '''
 
 TODO TODO TODO
@@ -34,7 +32,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
-
 
 POINTS_MALL_URL = "https://www.banggood.com/pointsmall.html"
 LOGIN_PAGE_URL = "https://www.banggood.com/login.html"
@@ -148,7 +145,7 @@ def main(args):
         driver = webdriver.Chrome(options=options)
         action = ActionChains(driver)
         if not args.quiet:
-            driver.set_window_rect(380,0,1160,1040)
+            driver.set_window_rect(380, 0, 1160, 1040)
             driver.get('chrome://settings/')
             driver.execute_script('chrome.settingsPrivate.setDefaultZoom(0.8);')
 
@@ -280,31 +277,37 @@ def main(args):
         #                 logger.info("Uhhh... Congrats button!")
         #                 congratsButtons[0].click()
 
-        # # DAILY BONUS
-        # for _ in range(0, 2):
-        #     open_url(DAILY_BONUS_URL, driver, action)
-        #     eggHoverBonus = driver.find_elements_by_xpath('//div[contains(@class, "egg-cnt")]')
-        #     if len(eggHoverBonus):
-        #         move_to = action.move_to_element(eggHoverBonus[0])
-        #         eggHoverBonus[0].click()
-        #         eggDailyBonusesModals = driver.find_elements_by_xpath('//div[contains(@class, "foot")]//li[contains(@class, "confirm")]')
-        #         if len(eggDailyBonusesModals) > 0:
-        #             for eggDailyBonusConfirm in eggDailyBonusesModals:
-        #                 if eggDailyBonusConfirm.location['x'] > 0:
-        #                     try:
-        #                         logger.info('Clicking "Confirm" button...')
-        #                         eggDailyBonusConfirm.click()
-        #                         logger.info('Waiting some seconds...')
-        #                         time.sleep(random.randint(5, 10))
-        #                         logger.info('TODO: checking result modal')
-        #                     except:
-        #                         logger.warning('Wrong button! Moving on...')
-        #         else:
-        #             logger.error("Couldn't find the modal! :(")
-        #             break
+        # # # DAILY BONUS
+        # # for _ in range(0, 2):
+        # open_url(DAILY_BONUS_URL, driver, action)
+        # eggIcon = driver.find_elements_by_xpath('//div[contains(@class, "egg-icon")]')
+        # if len(eggIcon):
+        #     # time.sleep(random.randint(0, 5))
+        #     action.move_to_element_with_offset(eggIcon[0], random.randint(5, 20), random.randint(5, 20)).move_to_element_with_offset(
+        #         eggIcon[0], random.randint(5, 20),
+        #         random.randint(5, 20)).move_to_element_with_offset(eggIcon[0], random.randint(5, 20), random.randint(5, 20)).perform()
+        #     # action.move_to_element_with_offset(eggIcon[0], random.randint(5, 20), random.randint(5, 20)).perform()
+        #     eggIcon[0].click().perform()
+
+        #     eggDailyBonusesModals = driver.find_elements_by_xpath('//div[contains(@class, "foot")]//li[contains(@class, "confirm")]')
+        #     if len(eggDailyBonusesModals) > 0:
+        #         for eggDailyBonusConfirm in eggDailyBonusesModals:
+        #             if eggDailyBonusConfirm.location['x'] > 0:
+        #                 try:
+
+        #                     logger.info('Clicking "Confirm" button...')
+        #                     eggDailyBonusConfirm.click()
+        #                     logger.info('Waiting some seconds...')
+        #                     time.sleep(random.randint(5, 10))
+        #                     logger.info('TODO: checking result modal')
+        #                 except:
+        #                     logger.warning('Wrong button! Moving on...')
         #     else:
-        #         logger.error("Couldn't find the egg! :( Giving up...")
+        #         logger.error("Couldn't find the modal! :(")
         #         break
+        # else:
+        #     logger.error("Couldn't find the egg! :( Giving up...")
+        #     break
 
         driver.quit()
 
